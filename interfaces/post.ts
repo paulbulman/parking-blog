@@ -8,6 +8,7 @@ type PostType = {
     url: string;
   };
   content: string;
+  mdxSource: any;
 };
 
 export default PostType;

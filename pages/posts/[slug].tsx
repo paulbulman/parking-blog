@@ -9,7 +9,8 @@ import { getPostBySlug, getAllPosts } from "../../lib/api";
 import PostTitle from "../../components/post-title";
 import Head from "next/head";
 import { BLOG_NAME } from "../../lib/constants";
-import markdownToHtml from "../../lib/markdownToHtml";
+import rehypeHighlight from "rehype-highlight";
+import { serialize } from "next-mdx-remote/serialize";
 import type PostType from "../../interfaces/post";
 
 type Props = {
@@ -41,7 +42,7 @@ export default function Post({ post, morePosts, preview }: Props) {
                 coverImage={post.coverImage}
                 date={post.date}
               />
-              <PostBody content={post.content} />
+              <PostBody mdxSource={post.mdxSource} />
             </article>
           </>
         )}
@@ -65,13 +66,15 @@ export async function getStaticProps({ params }: Params) {
     "ogImage",
     "coverImage",
   ]);
-  const content = await markdownToHtml(post.content || "");
+  const mdxSource = await serialize(post.content, {
+    mdxOptions: { rehypePlugins: [rehypeHighlight] },
+  });
 
   return {
     props: {
       post: {
         ...post,
-        content,
+        mdxSource,
       },
     },
   };
